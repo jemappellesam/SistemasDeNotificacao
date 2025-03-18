@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela do Usuário</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Conecta ao servidor Socket.IO
+        const socket = io();
+
+        // Função para solicitar permissão de notificação
+        function requestNotificationPermission() {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('Permissão para notificações concedida!');
+                    }
+                });
+            }
+        }
+
+        // Solicita permissão ao carregar a página
+        window.onload = requestNotificationPermission;
+
+        // Escuta o evento de novas tarefas
+        socket.on('new-task', (data) => {
+            const taskList = document.getElementById('task-list');
+            const li = document.createElement('li');
+            li.textContent = data.task;
+            taskList.appendChild(li);
+            window.alert("Nova atividade cadastrada")
+        });
+
+        // Escuta o evento de tarefas iniciais
+        socket.on('initial-tasks', (initialTasks) => {
+            const taskList = document.getElementById('task-list');
+            initialTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.textContent = task;
+                taskList.appendChild(li);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Tarefas Submetidas</h1>
+    <ul id="task-list"></ul>
+    <p><a href="/admin">Voltar para a Tela Administrativa</a></p>
+</body>
+</html>
